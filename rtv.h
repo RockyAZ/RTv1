@@ -20,8 +20,8 @@
 # define WIDTH 800
 # define HEIGHT 800
 
-#define R_W 20
-#define R_H 20
+#define C_W 20
+#define C_H 20
 
 /*
 ** COLORS IN MLX_IMAGE:

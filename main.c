@@ -31,7 +31,7 @@ void	main_preparation(t_win *win, char *av)
 	win->cam.z = 0;
 win->sp.coord.x = 2;
 win->sp.coord.y = 0;
-win->sp.coord.x = 4;
+win->sp.coord.z = 4;
 win->sp.r = 1;
 win->sp.color = RED;
 }

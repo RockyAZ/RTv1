@@ -57,6 +57,15 @@ double	ft_inter_sphere(t_th *mlx, t_obj *tmp, t_vec ray, t_vec pos)
 	return (mlx->t0);
 }
 
+t_vec canvas_to_view(t_win *win, x, y)
+{
+	t_vec res;
+
+	res.x = WIDTH / C_W;
+	res.y = HEIGHT / C_H;
+	res.z = HEIGHT / C_H;
+}
+
 double sphere(t_win *win, int x, int y)
 {
 	t_vec disc;
@@ -73,6 +82,7 @@ void	ray_tracing(t_win *win)
 {
 	int x;
 	int y;
+	t_vec d;
 
 	x = 0;
 	y = 0;
@@ -81,6 +91,7 @@ void	ray_tracing(t_win *win)
 	{
 		while (x < WIDTH)
 		{
+			d = canvas_to_view(win, x, y);
 			sphere(win, x, y);
 			// plane(win);
 			// cone();
@@ -90,3 +101,5 @@ void	ray_tracing(t_win *win)
 		y++;
 	}
 }
+
+return [p2d[0] * viewport_size / canvas.width, p2d[1] * viewport_size / canvas.height, projection_plane_z];
