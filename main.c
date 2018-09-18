@@ -5,56 +5,98 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: azaporoz <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/06/19 14:20:15 by azaporoz          #+#    #+#             */
-/*   Updated: 2018/06/19 14:20:17 by azaporoz         ###   ########.fr       */
+/*   Created: 2018/09/18 19:52:37 by azaporoz          #+#    #+#             */
+/*   Updated: 2018/09/18 19:52:37 by azaporoz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "rtv.h"
+#include "rtv1.h"
 
-int	ft_exit(t_win *win)
+void	create_fig(t_win *win)
 {
-	(void)win;
-	exit(EXIT_SUCCESS);
-	return (0);
+	win->form = (t_form*)malloc(sizeof(t_form));
+	win->form->type = 1;
+	win->form->coord.x = 0;
+	win->form->coord.y = -1;
+	win->form->coord.z = 3;
+	win->form->r = 1;
+	win->form->col.r = 255;
+	win->form->col.g = 0;
+	win->form->col.b = 0;
+	win->form->col.a = 255;
+
+	win->form->next = (t_form*)malloc(sizeof(t_form));
+	win->form->next->type = 1;
+	win->form->next->coord.x = 2;
+	win->form->next->coord.y = 0;
+	win->form->next->coord.z = 4;
+	win->form->next->r = 1;
+	win->form->next->col.r = 0;
+	win->form->next->col.g = 0;
+	win->form->next->col.b = 255;
+	win->form->next->col.a = 255;
+
+	win->form->next->next = (t_form*)malloc(sizeof(t_form));
+	win->form->next->next->type = 1;
+	win->form->next->next->coord.x = -2;
+	win->form->next->next->coord.y = 0;
+	win->form->next->next->coord.z = 4;
+	win->form->next->next->r = 1;
+	win->form->next->next->col.r = 0;
+	win->form->next->next->col.g = 255;
+	win->form->next->next->col.b = 0;
+	win->form->next->next->col.a = 255;
+
+	win->form->next->next->next = NULL;
+	win->forms = 3;
 }
 
-void	main_preparation(t_win *win)
+void	create_light(t_win *win)
 {
-	if ((win->mlx_ptr = mlx_init()) == NULL)
-		error("mlx init error");
-	win->win_ptr = mlx_new_window(win->mlx_ptr, WIDTH, HEIGHT, "RTv1");
-	if (win->win_ptr == NULL)
-		error("window open error");
-	win->cam.x = 0;
-	win->cam.y = 0;
-	win->cam.z = 0;
-win->sp.coord.x = 0;
-win->sp.coord.y = -1;
-win->sp.coord.z = 3;
-win->sp.r = 1;
-win->sp.color = RED;
-}
-
-void	img_preparation(t_win *win)
-{
-	win->img_ptr = mlx_new_image(win->mlx_ptr, WIDTH, HEIGHT);
-	win->ptr = (unsigned char*)mlx_get_data_addr(win->img_ptr, &win->bpp, &win->size_line, &win->endian);
-	// mlx_put_image_to_window(win->mlx_ptr, win->win_ptr, win->img_ptr, 0, 0);
-	// mlx_destroy_image(win->mlx_ptr, win->img_ptr);
+	win->light = (t_light*)malloc(sizeof(t_light));
+	win->light->type = 1;
+	win->light->dir.x = 1;
+	win->light->dir.y = 4;
+	win->light->dir.z = 4;
+	win->light->intensity = 0.4;	
 }
 
 int	main(int ac, char **av)
 {
 	t_win *win;
 
-	if ((win = (t_win*)malloc(sizeof(t_win))) == NULL)
-		error("t_win malloc error");
-	main_preparation(win);
-	img_preparation(win);
-	ray_tracing(win);
-	// mlx_hook(win->win_ptr, 2, 0, &ft_keyhook, (void*)win);
-	// mlx_hook(win->win_ptr, 3, 0, &ft_up_keyhook, (void*)win);
-	mlx_hook(win->win_ptr, 17, 0, &ft_exit, (void*)win);
-	mlx_loop(win->mlx_ptr);
+	win = (t_win*)malloc(sizeof(t_win));
+	create_fig(win);
+	create_light(win);
+	SDL_Init(SDL_INIT_EVERYTHING);
+	win->win = SDL_CreateWindow("RTv1", 0, 0, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+	win->ren = SDL_CreateRenderer(win->win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	// win->screen = SDL_CreateTexture(win->ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, WIDTH, HEIGHT);
+	// SDL_SetTextureBlendMode(win->screen, SDL_BLENDMODE_BLEND);
+
+	while (win->quit == 0)
+	{
+		SDL_SetRenderDrawColor(win->ren, 0, 0, 0, 0);
+		SDL_RenderClear(win->ren);
+		ray_tracing(win);
+		while (SDL_PollEvent(&win->e))
+		{
+			if (win->e.type == SDL_KEYDOWN && win->e.key.keysym.sym == SDLK_ESCAPE)
+				win->quit = 1;
+			if (win->e.type == SDL_QUIT)
+				win->quit = 1;
+		}
+		// SDL_UpdateTexture(win->screen, NULL, win->buffer[0], WIDTH << 2);
+		// SDL_RenderCopy(win->ren, win->screen, NULL, NULL);
+		SDL_RenderPresent(win->ren);
+	}
+	// SDL_DestroyRenderer(win->ren);
+	// SDL_DestroyWindow(win->win);
+	SDL_Quit();
+	return (0);
 }
+	// SDL_SetRenderDrawColor(env.renderer, color.r, color.g, color.b, 255);
+	// SDL_RenderDrawPoint(env.renderer, x, y);
+	// if ((SDL_Init(SDL_INIT_EVERYTHING) == -1))
+		// exit_fail(SDL_GetError(), 1);
+	// if ((SDL_CreateWindowAndRenderer(WINDOW_W, WINDOW_H, 0, &env->window, &env->renderer) == -1))

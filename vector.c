@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "rtv.h"
+#include "rtv1.h"
 
 double  dot(t_vec *v1, t_vec *v2)
 {
@@ -30,7 +30,7 @@ t_vec	cross(t_vec *v1, t_vec *v2)
 	return (v);
 }
 
-t_vec	vectorscale(t_vec *v, float n)
+t_vec	vectorscale(double n, t_vec *v)
 {
 	t_vec	res;
 
@@ -48,6 +48,16 @@ t_vec	vectorsub(t_vec *v1, t_vec *v2)
 	sub.y = v1->y - v2->y;
 	sub.z = v1->z - v2->z;
 	return (sub);
+}
+
+t_vec	vectoradd(t_vec a, t_vec b)
+{
+	t_vec res;
+
+	res.x = a.x + b.x;
+	res.y = a.y + b.y;
+	res.z = a.z + b.z;
+	return (res);
 }
 
 void	vectornorm(t_vec *v)
