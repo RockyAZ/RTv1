@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Basic ray tracing demo - Computer Graphics from scratch - Gabriel Gambetta</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <script src="/js/jquery-3.2.1.min.js"></script>
+  <!-- Google Analytics -->
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-17633478-1', 'auto');
+    ga('send', 'pageview');
+  
+  
+    var __send_ga_event = function(spec, opt_url) {
+      var parts = spec.split("-");
+      var opt_callback = undefined;
+      if (!!opt_url) {
+        //console.log("URL " + opt_url);
+        opt_callback = {
+          'transport': 'beacon',
+          'hitCallback': function(){ document.location = opt_url; }
+        };
+      }
+      //console.log("Event " + spec);
+      ga('send', 'event', parts[0], parts[1], parts[2], opt_callback);
+      return false;
+    }
+  
+    var __add_gg_handlers = function(data_attr, opt_href_prefix) {
+      $("[" + data_attr + "]").each(function(_, link) {
+        var spec = $(link).attr(data_attr);
+        var handler = (function() { 
+          var href = undefined;
+          if (!!opt_href_prefix) {        
+            href = opt_href_prefix + spec;
+            if (!$(link).attr("href")) {
+              $(link).attr("href", href);
+            }
+          } else if (!$(link).attr("href")) {
+            $(link).attr("href", "#");
+          }
+          var save_spec = spec;
+          return function() { return __send_ga_event(save_spec, href); };
+        })()
+        $(link).click(handler);
+      });
+    }
+  
+    var __add_event_tracking = function() {
+      __add_gg_handlers("gg-event");
+      __add_gg_handlers("gg-link", "outbound.php?link=");
+    }
+  
+    $(__add_event_tracking);
+  </script>
+  <!-- End Google Analytics -->
+</head>
+<body>
+<div class="main">
+<div class="nav">
+<a href="/computer-graphics-from-scratch"><< Computer Graphics from scratch</a>	<a class="homelink" href="/index.html">Gabriel Gambetta</a>
+</div>
+<div class='centered'>
+<!--
+-->
+<canvas id="canvas" width=600 height=600 style="border: 1px grey solid">
+<script>
+
+// ======================================================================
+//  Low-level canvas access. 
+// ======================================================================
+
+var canvas = document.getElementById("canvas");
+var canvas_context = canvas.getContext("2d");
+var canvas_buffer = canvas_context.getImageData(0, 0, canvas.width, canvas.height);
+var canvas_pitch = canvas_buffer.width * 4;
+
+
+// The PutPixel() function.
+var PutPixel = function(x, y, color) {
+  x = canvas.width/2 + x;
+  y = canvas.height/2 - y - 1;
+
+  if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) {
+    return;
+  }
+
+  var offset = 4*x + canvas_pitch*y;
+  canvas_buffer.data[offset++] = color[0];
+  canvas_buffer.data[offset++] = color[1];
+  canvas_buffer.data[offset++] = color[2];
+  canvas_buffer.data[offset++] = 255; // Alpha = 255 (full opacity)
+}
+
+
+// Displays the contents of the offscreen buffer into the canvas.
+var UpdateCanvas = function() {
+  canvas_context.putImageData(canvas_buffer, 0, 0);
+}
+
+
+// ======================================================================
+//  Linear algebra and helpers.
+// ======================================================================
+
+// Dot product of two 3D vectors.
+var DotProduct = function(v1, v2) {
+  return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];  
+}
+
+
+// Computes v1 - v2.
+var Subtract = function(v1, v2) {
+  return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]];
+}
+
+
+// ======================================================================
+//  A very basic raytracer.
+// ======================================================================
+
+// A Sphere.
+var Sphere = function(center, radius, color) {
+  this.center = center;
+  this.radius = radius;
+  this.color = color;
+}
+
+// Scene setup.
+var viewport_size = 1;
+var projection_plane_z = 1;
+var camera_position = [0, 0, 0];
+var background_color = [255, 255, 255];
+var spheres = [new Sphere([0, -1, 3], 1, [255, 0, 0])]; 
+
+
+// Converts 2D canvas coordinates to 3D viewport coordinates.
+var CanvasToViewport = function(p2d) {
+  return [p2d[0] * viewport_size / canvas.width,
+      p2d[1] * viewport_size / canvas.height,
+      projection_plane_z]; 
+}
+
+
+// Computes the intersection of a ray and a sphere. Returns the values
+// of t for the intersections.
+var IntersectRaySphere = function(origin, direction, sphere) {
+  var oc = Subtract(origin, sphere.center);
+
+  var k1 = DotProduct(direction, direction);
+  var k2 = 2*DotProduct(oc, direction);
+  var k3 = DotProduct(oc, oc) - sphere.radius*sphere.radius;
+  console.log("KKK");
+  console.log(k1, k2, k3);
+  var discriminant = k2*k2 - 4*k1*k3;
+  console.log("discrimenant");
+  console.log(discriminant);
+  if (discriminant < 0) {
+    return [Infinity, Infinity];
+  }
+
+  var t1 = (-k2 + Math.sqrt(discriminant)) / (2*k1);
+  var t2 = (-k2 - Math.sqrt(discriminant)) / (2*k1);
+  return [t1, t2];
+}
+
+
+// Traces a ray against the set of spheres in the scene.
+var TraceRay = function(origin, direction, min_t, max_t) {
+  var closest_t = Infinity;
+  var closest_sphere = null;
+  
+  for (var i = 0; i < spheres.length; i++) {
+    var ts = IntersectRaySphere(origin, direction, spheres[i]);
+    if (ts[0] < closest_t && min_t < ts[0] && ts[0] < max_t) {
+      closest_t = ts[0];
+      closest_sphere = spheres[i];
+    }
+    if (ts[1] < closest_t && min_t < ts[1] && ts[1] < max_t) {
+      closest_t = ts[1];
+      closest_sphere = spheres[i];
+    }
+  }
+
+  if (closest_sphere == null) {
+    return background_color;
+  }
+
+  return closest_sphere.color;
+}
+
+
+//
+// Main loop.
+//
+for (var x = -canvas.width/2; x < canvas.width/2; x++) {
+  for (var y = -canvas.height/2; y < canvas.height/2; y++) {
+    var direction = CanvasToViewport([x, y])
+    // console.log("direction");
+    // console.log(direction[0], direction[1], direction[2]);
+    var color = TraceRay(camera_position, direction, 1, Infinity);
+    PutPixel(x, y, color);
+  }
+}
+
+UpdateCanvas();
+
+
+</script>
+</div>
+<div class="cgfs_navbar">
+<strong>Computer Graphics from scratch</strong> · <a href="/computer-graphics-from-scratch/introduction.html">Introduction</a> · <a href="/computer-graphics-from-scratch/table-of-contents.html">Table of contents</a> · <a href="/computer-graphics-from-scratch/common-concepts.html">Common concepts</a><br><a href="/computer-graphics-from-scratch/raytracing.html"><strong>Part I: Raytracing</strong></a> · <a href="/computer-graphics-from-scratch/basic-ray-tracing.html">Basic ray tracing</a> · <a href="/computer-graphics-from-scratch/light.html">Light</a> · <a href="/computer-graphics-from-scratch/shadows.html">Shadows</a> · <a href="/computer-graphics-from-scratch/reflection.html">Reflection</a> · <a href="/computer-graphics-from-scratch/arbitrary-camera.html">Arbitrary camera</a> · <a href="/computer-graphics-from-scratch/beyond-the-basics.html">Beyond the basics</a> · <a href="/computer-graphics-from-scratch/raytracer-pseudocode.html">Raytracer pseudocode</a><br><a href="/computer-graphics-from-scratch/rasterization.html"><strong>Part II: Rasterization</strong></a> · <a href="/computer-graphics-from-scratch/lines.html">Lines</a> · <a href="/computer-graphics-from-scratch/filled-triangles.html">Filled triangles</a> · <a href="/computer-graphics-from-scratch/shaded-triangles.html">Shaded triangles</a> · <a href="/computer-graphics-from-scratch/perspective-projection.html">Perspective projection</a> · <a href="/computer-graphics-from-scratch/scene-setup.html">Scene setup</a> · <a href="/computer-graphics-from-scratch/clipping.html">Clipping</a> · <a href="/computer-graphics-from-scratch/hidden-surface-removal.html">Hidden surface removal</a> · <a href="/computer-graphics-from-scratch/shading.html">Shading</a> · <a href="/computer-graphics-from-scratch/textures.html">Textures</a>
+</div>
+<div class="centered">
+<span style="color:red">Found an error?</span> Everything is in <a href="https://github.com/ggambetta/computer-graphics-from-scratch">Github</a>.
+</div>
+<div id="signup" class="signup signup_tgl">
+
+</div>
+<script>$("#signup").load("/signup.php?m=gfx&r=raytracer-01");</script>
+<hr>
+<div class="social">
+
+<!-- Facebook -->
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<div class="fb-like" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" style="width: 150px;"></div>
+
+
+<!-- Google+ -->
+<div class="g-plusone"></div>
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+
+
+<!-- Twitter -->
+<a href="https://twitter.com/share" class="twitter-share-button" data-via="gabrielgambetta">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+</div>
+</div>
+<div class="copyright">&copy; Gabriel Gambetta 2017</div>
+</body>
+</html>

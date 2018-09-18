@@ -17,11 +17,14 @@
 ** 2500
 ** 1300
 */
-# define WIDTH 800
-# define HEIGHT 800
+# define WIDTH 970
+# define HEIGHT 970
 
-#define C_W 20
-#define C_H 20
+#define VIEW 1
+#define C_W 1
+#define C_H 1
+
+#define TO_VIEW 1
 
 /*
 ** COLORS IN MLX_IMAGE:
@@ -42,8 +45,7 @@
 # include "keys.h"
 # include <mlx.h>
 # include <math.h>
-# include <pthread.h>
-
+#include<stdio.h>
 typedef struct		s_vec
 {
 	double			x;
@@ -93,4 +95,9 @@ t_vec				cross(t_vec *v1, t_vec *v2);
 t_vec				vectorscale(t_vec *v, float n);
 t_vec				vectorsub(t_vec *v1, t_vec *v2);
 void				vectornorm(t_vec *v);
+
+/*
+** error
+*/
+void				error(char *str);
 #endif
