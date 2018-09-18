@@ -57,20 +57,36 @@
 // 	return (mlx->t0);
 // }
 
-static void		draw_point(int x, int y, t_win *win, int color)
+void		draw_point(int xx, int yy, t_win *win, double color)
 {
+	xx = WIDTH / 2 + xx;
+	yy = HEIGHT / 2 - yy + 1;
+// printf("%d\n%d\n", xx, yy);
 	int i;
-	i = ((int)x * 4) + ((int)y * win->size_line);
-	win->ptr[i] = 255;
+	if (xx < WIDTH && yy < HEIGHT)
+	{
+		i = (xx * 4) + (yy * win->size_line);
+		if (color > 0)
+		{
+			win->ptr[i] = 255 * color;
+			win->ptr[++i] = 255 * color;
+			win->ptr[++i] = 255 * color;
+		}
+		else
+		{
+			win->ptr[i] = 255;
+			win->ptr[++i] = 255;
+			win->ptr[++i] = 255;
+		}			
 	// win->ptr[++i] = color >> 8;
 	// win->ptr[++i] = color >> 16;
+	}
 }
 
 t_vec	canvas_to_view(t_win *win, double x, double y)
 {
 	t_vec res;
 
-	// printf("X:%f\nY:%f\n", (double)x, (double)y);
 	res.x = x * (double)VIEW / (double)WIDTH;
 	res.y = y * (double)VIEW / (double)HEIGHT;
 	res.z = (double)TO_VIEW;
@@ -112,23 +128,56 @@ void	put_pixel(t_win *win, int xx, int yy)
 	mlx_pixel_put(win->mlx_ptr, win->win_ptr, xx, yy, RED);
 }
 
+// var Length = function(vec) {
+//   return Math.sqrt(DotProduct(vec, vec));
+// }
+
+double	calc_length(t_vec *vec)
+{
+	return (sqrt(dot(vec, vec)));
+}
+
+double	calc_light(t_win *win, int x, int y, double var)
+{
+	double i = 0.0;
+	double length_n;
+	t_vec	vec_l;
+	double n_dot_l;
+
+	t_vec point = vectoradd(win->cam, vectorscale(var, &win->dir));
+	t_vec normal = vectorsub(&point, &win->sp.coord);
+	normal = vectorscale(1.0 / calc_length(&normal), &normal);
+
+	vec_l = win->light.dir;
+	length_n = calc_length(&normal);
+	n_dot_l = dot(&normal, &vec_l);
+	i += win->light.intensity * n_dot_l / (length_n * calc_length(&vec_l));
+	return (i);
+}
+
 void	ray_tracing(t_win *win)
 {
 	double x;
 	double y;
-	t_vec d;
-	double del;
+	double var;
 
+double i;
 	x = -(WIDTH / 2);
 	while (x < WIDTH / 2)
 	{
 		y = -(HEIGHT / 2);
 		while (y < HEIGHT / 2)
 		{
-			d = canvas_to_view(win, x, y);
-			del = sphere(win, &d);
-			if (del != -1)
-				put_pixel(win, x, y);
+			win->dir = canvas_to_view(win, x, y);
+			var = sphere(win, &win->dir);
+			if (var != -1)
+			{
+				i = calc_light(win, x, y, var);
+				// printf("%f\n", i);
+				// put_pixel(win, x, y);
+				draw_point(x, y, win, i);
+			}
+				// put_pixel(win, x, y);
 				// draw_point(x, y, win, RED);
 			// plane(win);
 			// cone();
@@ -139,6 +188,6 @@ void	ray_tracing(t_win *win)
 	}
 	// printf("PP2:%d\n", pp2);
 	// exit(0);
-	// mlx_put_image_to_window(win->mlx_ptr, win->win_ptr, win->img_ptr, 0, 0);
+	mlx_put_image_to_window(win->mlx_ptr, win->win_ptr, win->img_ptr, 0, 0);
 	// mlx_destroy_image(win->mlx_ptr, win->img_ptr);
 }

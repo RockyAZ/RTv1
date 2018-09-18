@@ -60,6 +60,12 @@ typedef struct		s_sphere
 	int				r;
 }					t_sphere;
 
+typedef struct		s_light
+{
+	double	intensity;
+	t_vec dir;
+}					t_light;
+
 // typedef struct		s_cam
 // {
 // 	double			x;
@@ -73,6 +79,8 @@ typedef struct		s_win
 	t_vec			cam;
 	t_vec			m_ray;
 	t_sphere		sp;
+	t_light			light;
+	t_vec			dir;
 	void			*mlx_ptr;
 	void			*win_ptr;
 	void			*img_ptr;
@@ -92,9 +100,11 @@ void				ray_tracing(t_win *win);
 */
 double  			dot(t_vec *v1, t_vec *v2);
 t_vec				cross(t_vec *v1, t_vec *v2);
-t_vec				vectorscale(t_vec *v, float n);
+t_vec	vectorscale(double n, t_vec *v);
 t_vec				vectorsub(t_vec *v1, t_vec *v2);
 void				vectornorm(t_vec *v);
+
+t_vec				vectoradd(t_vec a, t_vec b);
 
 /*
 ** error

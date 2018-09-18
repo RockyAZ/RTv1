@@ -34,6 +34,10 @@ win->sp.coord.y = -1;
 win->sp.coord.z = 3;
 win->sp.r = 1;
 win->sp.color = RED;
+win->light.dir.x = 1;
+win->light.dir.y = 4;
+win->light.dir.z = 4;
+win->light.intensity = 0.4;
 }
 
 void	img_preparation(t_win *win)
