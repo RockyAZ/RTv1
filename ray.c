@@ -22,9 +22,6 @@ t_vec	canvas_to_view(t_win *win, double x, double y)
 	return (res);
 }
 
-
-
-
 void	put_pixel(t_win *win, int xx, int yy, double i, t_form *cp)
 {
 	xx = WIDTH / 2 + xx;
@@ -38,50 +35,6 @@ void	put_pixel(t_win *win, int xx, int yy, double i, t_form *cp)
 	SDL_SetRenderDrawColor(win->ren, cp->col.r * i, cp->col.g * i, cp->col.b * i, cp->col.a);
 	SDL_RenderDrawPoint(win->ren, xx, yy);
 }
-
-
-
-
-
-
-// double	cylinder(t_th *mlx, t_obj *tmp, t_vec ray, t_vec pos)
-// {
-// 	double disc;
-
-// 	mlx->dist = ft_vectorsub(&pos, &tmp->pos);
-// 	ft_vectornorm(&tmp->rot);
-// 	mlx->a = ft_vectordot(&ray, &ray) - pow(ft_vectordot(&ray, &tmp->rot), 2);
-// 	mlx->b = 2 * (ft_vectordot(&ray, &mlx->dist) -
-// 		(ft_vectordot(&ray, &tmp->rot) * ft_vectordot(&mlx->dist, &tmp->rot)));
-// 	mlx->c = ft_vectordot(&mlx->dist, &mlx->dist) -
-// 		pow(ft_vectordot(&mlx->dist, &tmp->rot), 2) - pow(tmp->size, 2);
-// 	disc = mlx->b * mlx->b - 4 * mlx->a * mlx->c;
-// 	if (disc < 0)
-// 		return (-1);
-// 	mlx->t0 = (-mlx->b + sqrtf(disc)) / (2 * mlx->a);
-// 	mlx->t1 = (-mlx->b - sqrtf(disc)) / (2 * mlx->a);
-// 	if (mlx->t0 > mlx->t1)
-// 		mlx->t0 = mlx->t1;
-// 	return (mlx->t0);
-// }
-
-// double	calc_light(t_win *win, int x, int y, double var, t_form *cp)
-// {
-// 	double i = 0.0;
-// 	double length_n;
-// 	t_vec	vec_l;
-// 	double n_dot_l;
-
-// 	t_vec point = vectoradd(win->cam, vectorscale(var, &win->dir));
-// 	t_vec normal = vectorsub(&point, &cp->coord);
-// 	normal = vectorscale(1.0 / calc_length(&normal), &normal);
-
-// 	vec_l = win->light->dir;
-// 	length_n = calc_length(&normal);
-// 	n_dot_l = dot(&normal, &vec_l);
-// 	i += win->light->intensity * n_dot_l / (length_n * calc_length(&vec_l));
-// 	return (i);
-// }
 
 double	calc_length(t_vec *vec)
 {
@@ -259,6 +212,32 @@ double	cone(t_win *win, t_form *cp, t_vec *dir)
 	return (t1);
 }
 
+double	cyli(t_win *win, t_form *cp, t_vec *dir)
+{
+	double disc;
+	t_vec oc;
+	double a;
+	double b;
+	double c;
+
+	double t1;
+	double t2;
+
+	oc = vectorsub(&win->cam, &cp->coord);
+	vectornorm(&cp->rot);
+	a = dot(dir, dir) - pow(dot(dir, &cp->rot), 2);
+	b = 2 * (dot(dir, &oc) - (dot(dir, &cp->rot) * dot(&oc, &cp->rot)));
+	c = dot(&oc, &oc) - pow(dot(&oc, &cp->rot), 2) - pow(cp->r, 2);
+	disc = b * b - 4 * a * c;
+	if (disc < 0)
+		return (-1);
+	t1 = (-b + sqrtf(disc)) / (2 * a);
+	t2 = (-b - sqrtf(disc)) / (2 * a);
+	if (t1 > t2)
+		t1 = t2;
+	return (t1);
+}
+
 
 void	ray_tracing(t_win *win)
 {
@@ -292,6 +271,8 @@ void	ray_tracing(t_win *win)
 					var = plane(win, cp, &win->dir);
 				else if (cp->type == CONE)
 					var = cone(win, cp, &win->dir);
+				else if (cp->type == CYLI)
+					var = cyli(win, cp, &win->dir);
 				if (var != -1 && var < res.var)
 				{
 					res.cp = cp;

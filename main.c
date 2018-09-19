@@ -155,6 +155,23 @@ void	create_fig_3(t_win *win)
 	win->form->next->next = NULL;
 }
 
+void	create_fig_4(t_win *win)
+{
+	win->form = (t_form*)malloc(sizeof(t_form));
+	win->form->type = CYLI;
+	win->form->coord.x = 0;
+	win->form->coord.y = -1;
+	win->form->coord.z = 3;
+	win->form->rot.x = 0;
+	win->form->rot.y = -1;
+	win->form->rot.z = 0;
+	win->form->r = 0.1;
+	win->form->col.r = 255;
+	win->form->col.g = 0;
+	win->form->col.b = 0;
+	win->form->col.a = 255;
+	win->form->next = NULL;
+}
 
 int	main(int ac, char **av)
 {
@@ -166,7 +183,8 @@ int	main(int ac, char **av)
 	win->cam.z = 0;
 	// create_fig(win);
 	// create_fig_2(win);
-	create_fig_3(win);
+	// create_fig_3(win);
+	create_fig_4(win);
 
 	create_light(win);
 	SDL_Init(SDL_INIT_EVERYTHING);

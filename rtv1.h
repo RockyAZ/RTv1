@@ -32,7 +32,7 @@
 
 #define SPHERE 1
 #define CONE 2
-#define CILINDER 3
+#define CYLI 3
 #define PLANE 4
 
 /*
