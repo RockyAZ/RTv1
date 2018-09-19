@@ -324,8 +324,9 @@ int	main(int ac, char **av)
 		// SDL_RenderCopy(win->ren, win->screen, NULL, NULL);
 		SDL_RenderPresent(win->ren);
 	}
-	// SDL_DestroyRenderer(win->ren);
-	// SDL_DestroyWindow(win->win);
+	SDL_DestroyRenderer(win->ren);
+	SDL_DestroyWindow(win->win);
+	// system("leaks RTv1");
 	SDL_Quit();
 	return (0);
 }

@@ -83,6 +83,8 @@ double	calc_light(t_win *win, int x, int y, double var, t_form *cp)
 	return (i);
 }
 
+// double	near_inter(t_win,)
+
 void	ray_tracing(t_win *win)
 {
 	double x;
