@@ -11,6 +11,6 @@
 #******************************************************************************#
 
 all:
-	gcc -o RTv1 main.c ray.c vector.c  libft/libft.a -I./libft/ -I./Frameworks/SDL2.framework/Headers\
+	gcc -o RTv1 main.c ray.c vector.c figure.c libft/libft.a -I./libft/ -I./Frameworks/SDL2.framework/Headers\
 	 		   -I./Frameworks/SDL2_image.framework/Headers\
 				-rpath @loader_path/Frameworks -F./Frameworks/ -framework SDL2 -framework SDL2_image

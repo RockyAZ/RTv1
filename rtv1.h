@@ -143,11 +143,19 @@ void				ray_tracing(t_win *win);
 */
 double  			dot(t_vec *v1, t_vec *v2);
 t_vec				cross(t_vec *v1, t_vec *v2);
-t_vec	vectorscale(double n, t_vec *v);
+t_vec				vectorscale(double n, t_vec *v);
 t_vec				vectorsub(t_vec *v1, t_vec *v2);
 void				vectornorm(t_vec *v);
 
 t_vec				vectoradd(t_vec a, t_vec b);
+
+/*
+** figures formulas
+*/
+double				sphere(t_win *win, t_form *cp, t_vec *dir);
+double				cone(t_win *win, t_form *cp, t_vec *dir);
+double				plane(t_win *win, t_form *cp, t_vec *dir);
+double				cyli(t_win *win, t_form *cp, t_vec *dir);
 
 /*
 ** error
