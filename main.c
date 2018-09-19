@@ -15,7 +15,7 @@
 void	create_fig(t_win *win)
 {
 	win->form = (t_form*)malloc(sizeof(t_form));
-	win->form->type = 1;
+	win->form->type = SPHERE;
 	win->form->coord.x = 0;
 	win->form->coord.y = -1;
 	win->form->coord.z = 3;
@@ -23,21 +23,24 @@ void	create_fig(t_win *win)
 	win->form->col.r = 255;
 	win->form->col.g = 0;
 	win->form->col.b = 0;
-	win->form->col.a = 255;
+	win->form->col.a = 251;//
 
 	win->form->next = (t_form*)malloc(sizeof(t_form));
-	win->form->next->type = 1;
+	win->form->next->type = SPHERE;
 	win->form->next->coord.x = 2;
 	win->form->next->coord.y = 0;
 	win->form->next->coord.z = 4;
+// win->form->next->coord.x = -1;
+// win->form->next->coord.y = 1;
+// win->form->next->coord.z = 4;
 	win->form->next->r = 1;
 	win->form->next->col.r = 0;
 	win->form->next->col.g = 0;
 	win->form->next->col.b = 255;
-	win->form->next->col.a = 255;
+	win->form->next->col.a = 252;//
 
 	win->form->next->next = (t_form*)malloc(sizeof(t_form));
-	win->form->next->next->type = 1;
+	win->form->next->next->type = SPHERE;
 	win->form->next->next->coord.x = -2;
 	win->form->next->next->coord.y = 0;
 	win->form->next->next->coord.z = 4;
@@ -45,7 +48,7 @@ void	create_fig(t_win *win)
 	win->form->next->next->col.r = 0;
 	win->form->next->next->col.g = 255;
 	win->form->next->next->col.b = 0;
-	win->form->next->next->col.a = 255;
+	win->form->next->next->col.a = 253;//
 
 	win->form->next->next->next = NULL;
 	win->forms = 3;
@@ -54,19 +57,117 @@ void	create_fig(t_win *win)
 void	create_light(t_win *win)
 {
 	win->light = (t_light*)malloc(sizeof(t_light));
-	win->light->type = 1;
-	win->light->dir.x = 1;
-	win->light->dir.y = 4;
-	win->light->dir.z = 4;
-	win->light->intensity = 0.4;	
+	win->light->type = AMBIENT;
+	win->light->intensity = 0.2;
+
+	win->light->next = (t_light*)malloc(sizeof(t_light));
+	win->light->next->type = POINT;
+	win->light->next->pos.x = 2;
+	win->light->next->pos.y = 1;
+	win->light->next->pos.z = 0;
+	// win->light->next->pos.x = -1;
+	// win->light->next->pos.y = -1;
+	// win->light->next->pos.z = -1;
+	win->light->next->intensity = 0.6;
+
+	win->light->next->next = (t_light*)malloc(sizeof(t_light));
+	win->light->next->next->type = DIRECT;
+	win->light->next->next->dir.x = 1;
+	win->light->next->next->dir.y = 4;
+	win->light->next->next->dir.z = 4;
+	win->light->next->next->intensity = 0.2;
+	win->light->next->next->next = NULL;
 }
+
+// light {
+//     type = ambient
+//     intensity = 0.2
+// }
+// light {
+//     type = point
+//     intensity = 0.6
+//     position = (2, 1, 0)
+// }
+// light {
+//     type = directional
+//     intensity = 0.2
+//     direction = (1, 4, 4)
+// }
+
+
+void	create_fig_2(t_win *win)
+{
+	win->form = (t_form*)malloc(sizeof(t_form));
+	win->form->type = PLANE;
+	win->form->coord.x = 0;
+	win->form->coord.y = -1;
+	win->form->coord.z = 3;
+	win->form->rot.x = 0;
+	win->form->rot.y = -1;
+	win->form->rot.z = 0;
+	win->form->r = 1;
+	win->form->col.r = 255;
+	win->form->col.g = 0;
+	win->form->col.b = 0;
+	win->form->col.a = 251;
+	// win->form->next = NULL;
+
+		win->form->next = (t_form*)malloc(sizeof(t_form));
+	win->form->next->type = SPHERE;
+	win->form->next->coord.x = 2;
+	win->form->next->coord.y = 0;
+	win->form->next->coord.z = 4;
+	win->form->next->r = 1;
+	win->form->next->col.r = 0;
+	win->form->next->col.g = 0;
+	win->form->next->col.b = 255;
+	win->form->next->col.a = 252;
+	win->form->next->next = NULL;
+}
+
+void	create_fig_3(t_win *win)
+{
+	win->form = (t_form*)malloc(sizeof(t_form));
+	win->form->type = CONE;
+	win->form->coord.x = 0;
+	win->form->coord.y = -1;
+	win->form->coord.z = 3;
+	win->form->rot.x = 0;
+	win->form->rot.y = -1;
+	win->form->rot.z = 0;
+	win->form->r = 0.5;
+	win->form->col.r = 255;
+	win->form->col.g = 0;
+	win->form->col.b = 0;
+	win->form->col.a = 255;
+	// win->form->next = NULL;
+
+		win->form->next = (t_form*)malloc(sizeof(t_form));
+	win->form->next->type = SPHERE;
+	win->form->next->coord.x = 0;
+	win->form->next->coord.y = -1;
+	win->form->next->coord.z = 3;
+	win->form->next->r = 1;
+	win->form->next->col.r = 0;
+	win->form->next->col.g = 0;
+	win->form->next->col.b = 255;
+	win->form->next->col.a = 255;
+	win->form->next->next = NULL;
+}
+
 
 int	main(int ac, char **av)
 {
 	t_win *win;
 
 	win = (t_win*)malloc(sizeof(t_win));
-	create_fig(win);
+	win->cam.x = 0;
+	win->cam.y = 0;
+	win->cam.z = 0;
+	// create_fig(win);
+	// create_fig_2(win);
+	create_fig_3(win);
+
 	create_light(win);
 	SDL_Init(SDL_INIT_EVERYTHING);
 	win->win = SDL_CreateWindow("RTv1", 0, 0, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);

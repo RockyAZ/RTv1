@@ -26,6 +26,15 @@
 
 #define TO_VIEW 1
 
+#define AMBIENT 1
+#define POINT 2
+#define DIRECT 3
+
+#define SPHERE 1
+#define CONE 2
+#define CILINDER 3
+#define PLANE 4
+
 /*
 ** COLORS IN MLX_IMAGE:
 ** 1->blue
@@ -75,16 +84,23 @@ typedef struct		s_form
 	int             type;
 	t_vec			coord;
 	t_color			col;
-	int				r;
+	t_vec			rot;
+	double			r;
 	struct s_form   *next;
 }					t_form;
+/*
+** 1 - ambient
+** 2 - point
+** 3 - directional
+*/
 
 typedef struct		s_light
 {
-	int type;
-	double	intensity;
-	t_vec dir;
-	struct s_light *next;
+	int 			type;
+	double			intensity;
+	t_vec			dir;
+	t_vec			pos;
+	struct s_light	*next;
 }					t_light;
 
 typedef struct		s_min
