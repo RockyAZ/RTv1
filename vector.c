@@ -12,7 +12,7 @@
 
 #include "rtv1.h"
 
-double  dot(t_vec *v1, t_vec *v2)
+double	dot(t_vec *v1, t_vec *v2)
 {
 	float	res;
 
@@ -58,14 +58,4 @@ t_vec	vectoradd(t_vec a, t_vec b)
 	res.y = a.y + b.y;
 	res.z = a.z + b.z;
 	return (res);
-}
-
-void	vectornorm(t_vec *v)
-{
-	double	n;
-
-	n = 1.0 / sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
-	v->x *= n;
-	v->y *= n;
-	v->z *= n;
 }

@@ -20,21 +20,23 @@
 # define WIDTH 970
 # define HEIGHT 970
 
-#define VIEW 1
-#define C_W 1
-#define C_H 1
+# define VIEW 1
+# define C_W 1
+# define C_H 1
 
-#define TO_VIEW 1
+# define TO_VIEW 1
 
-#define AMBIENT 1
-#define POINT 2
-#define DIRECT 3
+# define AMBIENT 1
+# define POINT 2
+# define DIRECT 3
 
-#define SPHERE 1
-#define CONE 2
-#define CYLI 3
-#define PLANE 4
+# define SPHERE 1
+# define CONE 2
+# define CYLI 3
+# define PLANE 4
 
+
+# define EPSILON 0.001
 /*
 ** COLORS IN MLX_IMAGE:
 ** 1->blue
@@ -97,7 +99,7 @@ typedef struct		s_form
 typedef struct		s_light
 {
 	int 			type;
-	double			intensity;
+	double			i;
 	t_vec			dir;
 	t_vec			pos;
 	struct s_light	*next;
@@ -109,16 +111,30 @@ typedef struct		s_min
 	double			var;
 }					t_min;
 
-// typedef struct		s_cam
-// {
-// 	double			x;
-// 	double			y;
-// 	double			z;
-// }					t_cam;
+typedef struct		s_lnorme
+{
+	double		i;
+	double		l_n;
+	t_vec		vec_l;
+	double		n_dot_l;
+	t_light		*p_l;
+	t_vec point;
+	t_vec normal;
+}					t_lnorme;
+
+typedef struct		s_fig
+{
+	double			a;
+	double			b;
+	double			c;
+	double			t1;
+	double			t2;
+	double			disc;
+	t_vec			oc;
+}					t_fig;
 
 typedef struct		s_win
 {
-	// t_cam			*cam;
 	t_vec			cam;
 	t_vec			m_ray;
 	t_form			*form;
@@ -128,9 +144,12 @@ typedef struct		s_win
 	SDL_Renderer	*ren;
 	SDL_Event		e;
 	int				quit;
-	int				forms;
 	double			tx;
-	double			ty;	
+	double			ty;
+	t_form			*min_f;
+	double			min_v;
+	double			done;
+	int				done_2;
 }					t_win;
 
 /*
@@ -145,8 +164,6 @@ double  			dot(t_vec *v1, t_vec *v2);
 t_vec				cross(t_vec *v1, t_vec *v2);
 t_vec				vectorscale(double n, t_vec *v);
 t_vec				vectorsub(t_vec *v1, t_vec *v2);
-void				vectornorm(t_vec *v);
-
 t_vec				vectoradd(t_vec a, t_vec b);
 
 /*
@@ -156,9 +173,18 @@ double				sphere(t_win *win, t_form *cp, t_vec *dir);
 double				cone(t_win *win, t_form *cp, t_vec *dir);
 double				plane(t_win *win, t_form *cp, t_vec *dir);
 double				cyli(t_win *win, t_form *cp, t_vec *dir);
-
+void				scene_1(t_win *win);
+void				scene_2(t_win *win);
+void				scene_3(t_win *win);
+void				scene_4(t_win *win);
 /*
 ** error
 */
 void				error(char *str);
+/*
+** add
+*/
+double				calc_length(t_vec *vec);
+t_vec				canvas_to_view(t_win *win, double x, double y);
+void				vectornorm(t_vec *v);
 #endif

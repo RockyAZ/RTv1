@@ -12,129 +12,114 @@
 
 #include "rtv1.h"
 
-t_vec	canvas_to_view(t_win *win, double x, double y)
-{
-	t_vec res;
-
-	res.x = x * (double)VIEW / (double)WIDTH;
-	res.y = y * (double)VIEW / (double)HEIGHT;
-	res.z = (double)TO_VIEW;
-	return (res);
-}
-
-void	put_pixel(t_win *win, int xx, int yy, double i, t_form *cp)
+void		put_pixel(t_win *win, int xx, int yy, t_form *cp)
 {
 	xx = WIDTH / 2 + xx;
 	yy = HEIGHT / 2 - yy - 1;
-	if (i == -2)
+	if (win->done == -2)
 	{
 		SDL_SetRenderDrawColor(win->ren, 255, 255, 255, 255);
 		SDL_RenderDrawPoint(win->ren, xx, yy);
 		return ;
 	}
-	SDL_SetRenderDrawColor(win->ren, cp->col.r * i, cp->col.g * i, cp->col.b * i, cp->col.a);
+	SDL_SetRenderDrawColor(win->ren, cp->col.r * win->done, cp->col.g *\
+		win->done, cp->col.b * win->done, cp->col.a);
 	SDL_RenderDrawPoint(win->ren, xx, yy);
 }
 
-double	calc_length(t_vec *vec)
+t_lnorme	make_light(t_win *win, double var, t_form *cp)
 {
-	return (sqrt(dot(vec, vec)));
+	t_lnorme l;
+
+	l.point = vectoradd(win->cam, vectorscale(var, &win->dir));
+	l.normal = vectorsub(&l.point, &cp->coord);
+	l.normal = vectorscale(1.0 / calc_length(&l.normal), &l.normal);
+	l.p_l = win->light;
+	l.i = 0.0;
+	return (l);
 }
 
-double	calc_light(t_win *win, int x, int y, double var, t_form *cp)
+double		calc_light(t_win *win, double var, t_form *cp)
 {
-	double i = 0.0;
-	double length_n;
-	t_vec	vec_l;
-	double n_dot_l;
-	t_light *p_l;
+	t_lnorme l;
 
-	t_vec point = vectoradd(win->cam, vectorscale(var, &win->dir));
-	t_vec normal = vectorsub(&point, &cp->coord);
-	normal = vectorscale(1.0 / calc_length(&normal), &normal);
-	p_l = win->light;
-	while (p_l)
+	l = make_light(win, var, cp);
+	while (l.p_l)
 	{
-		n_dot_l = 0;
-		if (p_l->type == AMBIENT)
-		{
-			i += p_l->intensity;
-		}
+		l.n_dot_l = 0;
+		if (l.p_l->type == AMBIENT)
+			l.i += l.p_l->i;
 		else
 		{
-			if  (p_l->type == POINT)
-			{
-				vec_l = vectorsub(&p_l->pos, &point);
-			}
+			if (l.p_l->type == POINT)
+				l.vec_l = vectorsub(&l.p_l->pos, &l.point);
 			else
+				l.vec_l = l.p_l->dir;
+			l.n_dot_l = dot(&l.normal, &l.vec_l);
+			if (l.n_dot_l > 0)
 			{
-				vec_l = p_l->dir;
-			}
-			n_dot_l = dot(&normal, &vec_l);
-			if (n_dot_l > 0)
-			{
-				length_n = calc_length(&normal);
-				n_dot_l = dot(&normal, &vec_l);
-				i += p_l->intensity * n_dot_l / (length_n * calc_length(&vec_l));
+				l.l_n = calc_length(&l.normal);
+				l.n_dot_l = dot(&l.normal, &l.vec_l);
+				l.i += l.p_l->i * l.n_dot_l / (l.l_n * calc_length(&l.vec_l));
 			}
 		}
-		p_l = p_l->next;
+		l.p_l = l.p_l->next;
 	}
-	return (i);
+	return (l.i);
 }
 
-// double	near_inter(t_win,)
+double		near_inter(t_win *win, double min_t, double max_t)
+{
+	t_form	*cp;
+	double	var;
 
-void	ray_tracing(t_win *win)
+	cp = win->form;
+	while (cp)
+	{
+		if (cp->type == SPHERE)
+			var = sphere(win, cp, &win->dir);
+		else if (cp->type == PLANE)
+			var = plane(win, cp, &win->dir);
+		else if (cp->type == CONE)
+			var = cone(win, cp, &win->dir);
+		else if (cp->type == CYLI)
+			var = cyli(win, cp, &win->dir);
+		if (var >= 0 && var < win->min_v && var >= min_t && var < max_t)
+		{
+			win->min_f = cp;
+			win->min_v = var;
+			win->done_2 = 1;
+		}
+		cp = cp->next;
+	}
+	if (win->done_2)
+		return (calc_light(win, win->min_v, win->min_f));
+	return (-1);
+}
+
+void		ray_tracing(t_win *win)
 {
 	double x;
 	double y;
-	double var;
-	double i;
-	int done;
-	t_form  *cp;
-	// t_min	res;
-t_form *min_f;
-double min_v;
 
+	win->done = -1;
 	x = -(WIDTH / 2);
 	while (x < WIDTH / 2)
 	{
 		y = -(HEIGHT / 2);
 		while (y < HEIGHT / 2)
 		{
-			cp = win->form;
-			min_f = cp;
-			min_v = MAX_INT;
-			done = 0;
-			i = -1;
 			win->dir = canvas_to_view(win, x, y);
-			while (cp)
-			{
-				if (cp->type == SPHERE)
-					var = sphere(win, cp, &win->dir);
-				else if (cp->type == PLANE)
-					var = plane(win, cp, &win->dir);
-				else if (cp->type == CONE)
-					var = cone(win, cp, &win->dir);
-				else if (cp->type == CYLI)
-					var = cyli(win, cp, &win->dir);
-				if (var != -1.0 && var < min_v)
-				if (var >= 0 && var < min_v)
-				{
-					min_f = cp;
-					min_v = var;
-					done = 1;
-				}
-				cp = cp->next;
-			}
-			if (done)
-			{
-				i = calc_light(win, x, y, min_v, min_f);
-				put_pixel(win, x, y, i, min_f);
-			}
+			win->min_f = win->form;
+			win->min_v = MAX_INT;
+			win->done = near_inter(win, 1.0, MAX_INT);
+			if (win->done >= 0)
+				put_pixel(win, x, y, win->min_f);
 			else
-				put_pixel(win, x, y, -2, min_f);
+			{
+				win->done = -2;
+				put_pixel(win, x, y, win->min_f);
+			}
 			y++;
 		}
 		x++;

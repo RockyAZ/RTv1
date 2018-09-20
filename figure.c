@@ -14,62 +14,50 @@
 
 double	sphere(t_win *win, t_form *cp, t_vec *dir)
 {
-	double discrim;
-	t_vec oc;
-	double k1;
-	double k2;
-	double k3;
+	t_fig f;
 
-	double t1;
-	double t2;
-
-	oc = vectorsub(&win->cam, &cp->coord);
-	k1 = dot(dir, dir);
-	k2 = 2.0 * dot(&oc, dir);
-	k3 = dot(&oc, &oc) - cp->r * cp->r;
-	discrim = k2 * k2 - 4.0 * k1 * k3;
-	if (discrim < 0)
+	f.oc = vectorsub(&win->cam, &cp->coord);
+	f.a = dot(dir, dir);
+	f.b = 2.0 * dot(&f.oc, dir);
+	f.c = dot(&f.oc, &f.oc) - cp->r * cp->r;
+	f.disc = f.b * f.b - 4.0 * f.a * f.c;
+	if (f.disc < 0)
 		return (-1);
-	t1 = (-k2 + sqrt(discrim)) / (2.0 * k1);
-	t2 = (-k2 - sqrt(discrim)) / (2.0 * k1);
-	if (t1 > t2)
-		return (t2);
-	return (t1);
+	f.t1 = (-f.b + sqrt(f.disc)) / (2.0 * f.a);
+	f.t2 = (-f.b - sqrt(f.disc)) / (2.0 * f.a);
+	if (f.t1 > f.t2)
+		return (f.t2);
+	return (f.t1);
 }
 
 double	cone(t_win *win, t_form *cp, t_vec *dir)
 {
-	double	disc;
-	t_vec oc;
-	double a;
-	double b;
-	double c;
+	t_fig f;
 
-	double t1;
-	double t2;
-
-	oc = vectorsub(&win->cam, &cp->coord);
+	f.oc = vectorsub(&win->cam, &cp->coord);
 	vectornorm(&cp->rot);
-	a = dot(dir, dir) - (1 + pow(tan(cp->r), 2)) *	pow(dot(dir, &cp->rot), 2);
-	b = 2 * (dot(dir, &oc) - (1 + pow(tan(cp->r), 2)) * dot(dir, &cp->rot) * dot(&oc, &cp->rot));
-	c = dot(&oc, &oc) - (1 +pow(tan(cp->r), 2)) * pow(dot(&oc, &cp->rot), 2);
-	disc = b * b - 4 * a * c;
-	if (disc < 0)
+	f.a = dot(dir, dir) - (1 + pow(tan(cp->r), 2)) *\
+	pow(dot(dir, &cp->rot), 2);
+	f.b = 2 * (dot(dir, &f.oc) - (1 + pow(tan(cp->r), 2)) *\
+		dot(dir, &cp->rot) * dot(&f.oc, &cp->rot));
+	f.c = dot(&f.oc, &f.oc) - (1 + pow(tan(cp->r), 2)) *\
+	pow(dot(&f.oc, &cp->rot), 2);
+	f.disc = f.b * f.b - 4 * f.a * f.c;
+	if (f.disc < 0)
 		return (-1);
-	t1 = (-b + sqrtf(disc)) / (2 * a);
-	t2 = (-b - sqrtf(disc)) / (2 * a);
-	if (t1 > t2)
-		t1 = t2;
-	return (t1);
+	f.t1 = (-f.b + sqrtf(f.disc)) / (2 * f.a);
+	f.t2 = (-f.b - sqrtf(f.disc)) / (2 * f.a);
+	if (f.t1 > f.t2)
+		f.t1 = f.t2;
+	return (f.t1);
 }
 
 double	plane(t_win *win, t_form *cp, t_vec *dir)
 {
 	double t1;
-	double t2;
 
-
-	t1 = ((dot(&cp->rot, &cp->coord) - dot(&cp->rot, &win->cam)) / dot(&cp->rot, dir));
+	t1 = ((dot(&cp->rot, &cp->coord) - dot(&cp->rot, &win->cam)) /\
+		dot(&cp->rot, dir));
 	if (t1 < 0.0001)
 		return (-1);
 	return (t1);
@@ -77,26 +65,19 @@ double	plane(t_win *win, t_form *cp, t_vec *dir)
 
 double	cyli(t_win *win, t_form *cp, t_vec *dir)
 {
-	double disc;
-	t_vec oc;
-	double a;
-	double b;
-	double c;
+	t_fig f;
 
-	double t1;
-	double t2;
-
-	oc = vectorsub(&win->cam, &cp->coord);
+	f.oc = vectorsub(&win->cam, &cp->coord);
 	vectornorm(&cp->rot);
-	a = dot(dir, dir) - pow(dot(dir, &cp->rot), 2);
-	b = 2 * (dot(dir, &oc) - (dot(dir, &cp->rot) * dot(&oc, &cp->rot)));
-	c = dot(&oc, &oc) - pow(dot(&oc, &cp->rot), 2) - pow(cp->r, 2);
-	disc = b * b - 4 * a * c;
-	if (disc < 0)
+	f.a = dot(dir, dir) - pow(dot(dir, &cp->rot), 2);
+	f.b = 2 * (dot(dir, &f.oc) - (dot(dir, &cp->rot) * dot(&f.oc, &cp->rot)));
+	f.c = dot(&f.oc, &f.oc) - pow(dot(&f.oc, &cp->rot), 2) - pow(cp->r, 2);
+	f.disc = f.b * f.b - 4 * f.a * f.c;
+	if (f.disc < 0)
 		return (-1);
-	t1 = (-b + sqrtf(disc)) / (2 * a);
-	t2 = (-b - sqrtf(disc)) / (2 * a);
-	if (t1 > t2)
-		t1 = t2;
-	return (t1);
+	f.t1 = (-f.b + sqrtf(f.disc)) / (2 * f.a);
+	f.t2 = (-f.b - sqrtf(f.disc)) / (2 * f.a);
+	if (f.t1 > f.t2)
+		f.t1 = f.t2;
+	return (f.t1);
 }
