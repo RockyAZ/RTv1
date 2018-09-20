@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RTV_H
-# define RTV_H
+#ifndef RTV1_H
+# define RTV1_H
 
 /*
 ** 2500
@@ -19,24 +19,19 @@
 */
 # define WIDTH 970
 # define HEIGHT 970
-
 # define VIEW 1
 # define C_W 1
 # define C_H 1
-
 # define TO_VIEW 1
-
 # define AMBIENT 1
 # define POINT 2
 # define DIRECT 3
-
 # define SPHERE 1
 # define CONE 2
 # define CYLI 3
 # define PLANE 4
-
-
 # define EPSILON 0.001
+
 /*
 ** COLORS IN MLX_IMAGE:
 ** 1->blue
@@ -51,13 +46,10 @@
 # define BLUE 0x0000FF
 # define PINK 0xFF00FF
 # define YELLOW 0xfff305
-
-#define MAX_INT 9223372036854775807
-
+# define MAX_INT 9223372036854775807
 # include "SDL.h"
 # include "./libft/libft.h"
 # include <math.h>
-#include<stdio.h>
 
 typedef struct		s_color
 {
@@ -80,25 +72,24 @@ typedef struct		s_vec
 ** 3 - conus
 ** 4 - plane
 */
-
 typedef struct		s_form
 {
-	int             type;
+	int				type;
 	t_vec			coord;
 	t_color			col;
 	t_vec			rot;
 	double			r;
-	struct s_form   *next;
+	struct s_form	*next;
 }					t_form;
+
 /*
 ** 1 - ambient
 ** 2 - point
 ** 3 - directional
 */
-
 typedef struct		s_light
 {
-	int 			type;
+	int				type;
 	double			i;
 	t_vec			dir;
 	t_vec			pos;
@@ -113,13 +104,13 @@ typedef struct		s_min
 
 typedef struct		s_lnorme
 {
-	double		i;
-	double		l_n;
-	t_vec		vec_l;
-	double		n_dot_l;
-	t_light		*p_l;
-	t_vec point;
-	t_vec normal;
+	double			i;
+	double			l_n;
+	t_vec			vec_l;
+	double			n_dot_l;
+	t_light			*p_l;
+	t_vec			point;
+	t_vec			normal;
 }					t_lnorme;
 
 typedef struct		s_fig
@@ -160,7 +151,7 @@ void				ray_tracing(t_win *win);
 /*
 ** vectors operations
 */
-double  			dot(t_vec *v1, t_vec *v2);
+double				dot(t_vec *v1, t_vec *v2);
 t_vec				cross(t_vec *v1, t_vec *v2);
 t_vec				vectorscale(double n, t_vec *v);
 t_vec				vectorsub(t_vec *v1, t_vec *v2);
@@ -177,10 +168,12 @@ void				scene_1(t_win *win);
 void				scene_2(t_win *win);
 void				scene_3(t_win *win);
 void				scene_4(t_win *win);
+
 /*
 ** error
 */
 void				error(char *str);
+
 /*
 ** add
 */
